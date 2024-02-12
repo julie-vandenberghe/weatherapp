@@ -6,6 +6,8 @@ import { parseISO } from "date-fns";
 import Image from "next/image";
 import { format } from "date-fns";
 import { useQuery } from "react-query";
+import Container from "@/components/Container";
+import { convertKelvinToCelsius } from "@/utils/convertKelvinToCelsius";
 //https://api.openweathermap.org/data/2.5/forecast?q=&pune&appid=c2b84193fe521c38dada6f68da0ef9de&cnt=56
 
 interface WeatherData {
@@ -105,7 +107,9 @@ export default function Home() {
               <p>{format(parseISO(firstData?.dt_txt ?? ""), "EEEE")}</p>
               <p className="text-lg">{format(parseISO(firstData?.dt_txt ?? ""), "dd.MM.yyyy")}</p>
             </h2>
-            <div></div>
+            <Container className="gap-10 px-6 items-center">
+              <div className="flex flex-col px-4">{convertKelvinToCelsius(firstData?.main.temp ?? 0)}°</div>
+            </Container>
           </div>
         </section>
         {/* 7 day forecast data */}

@@ -82,15 +82,29 @@ export default function Home() {
 
   console.log("data", data?.city.name);
 
-  if (isLoading) return (
-  <div className="flex items-center min-h-screen justify-center">
-    <p className="animate-bounce">Loading...</p>
-    </div>);
+  if (isLoading)
+    return (
+      <div className="flex items-center min-h-screen justify-center">
+        <p className="animate-bounce">Loading...</p>
+      </div>
+    );
+
+  const firstData = data?.list[0];
 
   return (
     <div className="flex flex-col gap-4 bg-gray-100 min-h-screen">
       <Navbar />
-      <main></main>
+      <main className="px-3 max-w-7xl mx-auto flex flex-col gap-9 w-full pb-10 pt-4">
+        {/* today data */}
+        <section>
+          <div>
+            <h2 className="flex gap-1 text-2xl items-end"></h2>
+            <div></div>
+          </div>
+        </section>
+        {/* 7 day forecast data */}
+        <section></section>
+      </main>
     </div>
   );
 }

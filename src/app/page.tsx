@@ -8,6 +8,7 @@ import { format } from "date-fns";
 import { useQuery } from "react-query";
 import Container from "@/components/Container";
 import { convertKelvinToCelsius } from "@/utils/convertKelvinToCelsius";
+import WeatherIcon from "@/components/WeatherIcon";
 //https://api.openweathermap.org/data/2.5/forecast?q=&pune&appid=c2b84193fe521c38dada6f68da0ef9de&cnt=56
 
 interface WeatherData {
@@ -109,7 +110,8 @@ export default function Home() {
                 {format(parseISO(firstData?.dt_txt ?? ""), "dd.MM.yyyy")}
               </p>
             </h2>
-            <Container className=" gap-10 px-6 items-center">
+            <Container className="w-full bg-white border rounded-xl flex py-4 shadow-sm gap-10 px-6 items-center">
+              {/* temperature */}
               <div className=" flex flex-col px-4">
                 <span className="text-5xl">
                   {convertKelvinToCelsius(firstData?.main.temp ?? 0)}°
@@ -126,6 +128,22 @@ export default function Home() {
                     {convertKelvinToCelsius(firstData?.main.temp_max ?? 0)}°↑
                   </span>
                 </p>
+              </div>
+              {/* time, weather icons and temprature per day */}
+              <div className="flex gap-10 sm:gap-16 overflow-x-auto w-full justify-between pr-3">
+                {data?.list.map((data, index) => 
+                  <div 
+                  key={index}
+                  className="flex flex-col justify-between gap-2 items-center text-xs font-semibold"
+                  >
+                    {/* time */}
+                    <p className="whitespace-nowrap">{format(parseISO(data.dt_txt), 'h:mm a')}</p>
+                    {/* weather icons */}
+                    <WeatherIcon iconName={data.weather[0].icon}/>
+                    {/* temperature */}
+                    <p>{convertKelvinToCelsius(data?.main.temp ?? 0)}°</p>{/* icons */}
+                  </div>
+                )}
               </div>
             </Container>
           </div>

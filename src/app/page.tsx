@@ -2,7 +2,9 @@
 
 import Navbar from "@/components/Navbar";
 import axios from "axios";
+import { parseISO } from "date-fns";
 import Image from "next/image";
+import { format } from "date-fns";
 import { useQuery } from "react-query";
 //https://api.openweathermap.org/data/2.5/forecast?q=&pune&appid=c2b84193fe521c38dada6f68da0ef9de&cnt=56
 
@@ -98,7 +100,11 @@ export default function Home() {
         {/* today data */}
         <section>
           <div>
-            <h2 className="flex gap-1 text-2xl items-end"></h2>
+            {/* DATE */}
+            <h2 className="flex gap-1 text-2xl items-end">
+              <p>{format(parseISO(firstData?.dt_txt ?? ""), "EEEE")}</p>
+              <p className="text-lg">{format(parseISO(firstData?.dt_txt ?? ""), "dd.MM.yyyy")}</p>
+            </h2>
             <div></div>
           </div>
         </section>

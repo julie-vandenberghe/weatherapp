@@ -74,7 +74,7 @@ export default function Home() {
     "repoData",
     async () => {
       const { data } = await axios.get(
-        `https://api.openweathermap.org/data/2.5/forecast?id=524901&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}&cnt=56`
+        `https://api.openweathermap.org/data/2.5/forecast?q=lille&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}&cnt=56`
       );
       return data;
     }
@@ -100,15 +100,33 @@ export default function Home() {
       <Navbar />
       <main className="px-3 max-w-7xl mx-auto flex flex-col gap-9 w-full pb-10 pt-4">
         {/* today data */}
-        <section>
-          <div>
+        <section className="space-y-4">
+          <div className="space-y-2">
             {/* DATE */}
             <h2 className="flex gap-1 text-2xl items-end">
               <p>{format(parseISO(firstData?.dt_txt ?? ""), "EEEE")}</p>
-              <p className="text-lg">{format(parseISO(firstData?.dt_txt ?? ""), "dd.MM.yyyy")}</p>
+              <p className="text-lg">
+                {format(parseISO(firstData?.dt_txt ?? ""), "dd.MM.yyyy")}
+              </p>
             </h2>
-            <Container className="gap-10 px-6 items-center">
-              <div className="flex flex-col px-4">{convertKelvinToCelsius(firstData?.main.temp ?? 0)}°</div>
+            <Container className=" gap-10 px-6 items-center">
+              <div className=" flex flex-col px-4">
+                <span className="text-5xl">
+                  {convertKelvinToCelsius(firstData?.main.temp ?? 0)}°
+                </span>
+                <p className="text-xs space-x-1 whitespace-nowrap">
+                  <span>feels like</span>
+                  <span>
+                    {convertKelvinToCelsius(firstData?.main.feels_like ?? 0)}°
+                  </span>
+                </p>
+                <p className="text-xs space-x-2">
+                  <span>{convertKelvinToCelsius(firstData?.main.temp_min ?? 0)}°↓</span>
+                  <span>
+                    {convertKelvinToCelsius(firstData?.main.temp_max ?? 0)}°↑
+                  </span>
+                </p>
+              </div>
             </Container>
           </div>
         </section>

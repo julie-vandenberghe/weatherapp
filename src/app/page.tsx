@@ -10,6 +10,7 @@ import Container from "@/components/Container";
 import { convertKelvinToCelsius } from "@/utils/convertKelvinToCelsius";
 import WeatherIcon from "@/components/WeatherIcon";
 import { getDayOrNightIcon } from "@/utils/getDayOrNightIcon";
+import WeatherDetails from "@/components/WeatherDetails";
 //https://api.openweathermap.org/data/2.5/forecast?q=&pune&appid=c2b84193fe521c38dada6f68da0ef9de&cnt=56
 
 interface WeatherData {
@@ -111,7 +112,7 @@ export default function Home() {
                 {format(parseISO(firstData?.dt_txt ?? ""), "dd.MM.yyyy")}
               </p>
             </h2>
-            <Container className="w-full bg-white border rounded-xl flex py-4 shadow-sm gap-10 px-6 items-center">
+            <Container className="w-full bg-white border rounded-xl flex py-4 shadow-sm w-full bg-white border rounded-xl flex py-4 shadow-sm gap-10 px-6 items-center">
               {/* temperature */}
               <div className=" flex flex-col px-4">
                 <span className="text-5xl">
@@ -124,7 +125,9 @@ export default function Home() {
                   </span>
                 </p>
                 <p className="text-xs space-x-2">
-                  <span>{convertKelvinToCelsius(firstData?.main.temp_min ?? 0)}°↓</span>
+                  <span>
+                    {convertKelvinToCelsius(firstData?.main.temp_min ?? 0)}°↓
+                  </span>
                   <span>
                     {convertKelvinToCelsius(firstData?.main.temp_max ?? 0)}°↑
                   </span>
@@ -132,26 +135,56 @@ export default function Home() {
               </div>
               {/* time, weather icons and temprature per day */}
               <div className="flex gap-10 sm:gap-16 overflow-x-auto w-full justify-between pr-3">
-                {data?.list.map((data, index) => 
-                  <div 
-                  key={index}
-                  className="flex flex-col justify-between gap-2 items-center text-xs font-semibold"
+                {data?.list.map((data, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-col justify-between gap-2 items-center text-xs font-semibold"
                   >
                     {/* time */}
-                    <p className="whitespace-nowrap">{format(parseISO(data.dt_txt), 'h:mm a')}</p>
+                    <p className="whitespace-nowrap">
+                      {format(parseISO(data.dt_txt), "h:mm a")}
+                    </p>
                     {/* weather icons */}
-                   {/*  <WeatherIcon iconName={data.weather[0].icon}/> */} {/* Version without night icon */}
-                    <WeatherIcon iconName={getDayOrNightIcon(data.weather[0].icon, data.dt_txt)}/>
+                    {/*  <WeatherIcon iconName={data.weather[0].icon}/> */}{" "} {/* Version without night icon */}
+                    <WeatherIcon
+                      iconName={getDayOrNightIcon(
+                        data.weather[0].icon,
+                        data.dt_txt
+                      )}
+                    />
                     {/* temperature */}
-                    <p>{convertKelvinToCelsius(data?.main.temp ?? 0)}°</p>{/* icons */}
+                    <p>{convertKelvinToCelsius(data?.main.temp ?? 0)}°</p>
+                    {/* icons */}
                   </div>
-                )}
+                ))}
               </div>
-            </Container>
+              </Container>
+              
+              <div className="flex gap-4">
+                {/* LEFT */}
+                <Container className="w-full bg-white border rounded-xl flex py-4 shadow-sm w-fit justify center flex-col px-4 items-center">
+                  <p className="capitalize text-center">{firstData?.weather[0].description}</p>
+                  <WeatherIcon
+                    iconName={getDayOrNightIcon(
+                      firstData?.weather[0].icon ?? "",
+                      firstData?.dt_txt ?? ""
+                    )}
+                  />
+                </Container>
+
+                {/* RIGHT */}
+                <Container className="w-full border rounded-xl flex py-4 shadow-sm bg-yellow-300/80 px-6 gap-4 justify-between">
+                  <WeatherDetails/>
+                </Container>
+              </div>
+           
           </div>
         </section>
+
         {/* 7 day forecast data */}
-        <section></section>
+        <section className="flex w-full flex-col gap-4">
+          <p className="text-2-xl">Forecast (7 days)</p>
+        </section>
       </main>
     </div>
   );

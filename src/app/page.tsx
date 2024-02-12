@@ -9,6 +9,7 @@ import { useQuery } from "react-query";
 import Container from "@/components/Container";
 import { convertKelvinToCelsius } from "@/utils/convertKelvinToCelsius";
 import WeatherIcon from "@/components/WeatherIcon";
+import { getDayOrNightIcon } from "@/utils/getDayOrNightIcon";
 //https://api.openweathermap.org/data/2.5/forecast?q=&pune&appid=c2b84193fe521c38dada6f68da0ef9de&cnt=56
 
 interface WeatherData {
@@ -75,7 +76,7 @@ export default function Home() {
     "repoData",
     async () => {
       const { data } = await axios.get(
-        `https://api.openweathermap.org/data/2.5/forecast?q=lille&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}&cnt=56`
+        `https://api.openweathermap.org/data/2.5/forecast?q=lille&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}&cnt=46`
       );
       return data;
     }
@@ -139,7 +140,8 @@ export default function Home() {
                     {/* time */}
                     <p className="whitespace-nowrap">{format(parseISO(data.dt_txt), 'h:mm a')}</p>
                     {/* weather icons */}
-                    <WeatherIcon iconName={data.weather[0].icon}/>
+                   {/*  <WeatherIcon iconName={data.weather[0].icon}/> */} {/* Version without night icon */}
+                    <WeatherIcon iconName={getDayOrNightIcon(data.weather[0].icon, data.dt_txt)}/>
                     {/* temperature */}
                     <p>{convertKelvinToCelsius(data?.main.temp ?? 0)}°</p>{/* icons */}
                   </div>

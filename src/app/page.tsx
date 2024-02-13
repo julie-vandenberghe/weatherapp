@@ -4,13 +4,15 @@ import Navbar from "@/components/Navbar";
 import axios from "axios";
 import { parseISO } from "date-fns";
 import Image from "next/image";
-import { format } from "date-fns";
+import { format, fromUnixTime } from "date-fns";
 import { useQuery } from "react-query";
 import Container from "@/components/Container";
 import { convertKelvinToCelsius } from "@/utils/convertKelvinToCelsius";
 import WeatherIcon from "@/components/WeatherIcon";
 import { getDayOrNightIcon } from "@/utils/getDayOrNightIcon";
 import WeatherDetails from "@/components/WeatherDetails";
+import { metersToKilometers } from "@/utils/metersToKilometers";
+import { convertWindSpeed } from "@/utils/convertWindSpeed";
 //https://api.openweathermap.org/data/2.5/forecast?q=&pune&appid=c2b84193fe521c38dada6f68da0ef9de&cnt=56
 
 interface WeatherData {
@@ -159,7 +161,7 @@ export default function Home() {
                 ))}
               </div>
               </Container>
-              
+
               <div className="flex gap-4">
                 {/* LEFT */}
                 <Container className="w-full bg-white border rounded-xl flex py-4 shadow-sm w-fit justify center flex-col px-4 items-center">
@@ -174,7 +176,14 @@ export default function Home() {
 
                 {/* RIGHT */}
                 <Container className="w-full border rounded-xl flex py-4 shadow-sm bg-yellow-300/80 px-6 gap-4 justify-between">
-                  <WeatherDetails/>
+                  <WeatherDetails 
+                  visibility={metersToKilometers(firstData?.visibility ?? 0)} 
+                  airPressure={`${firstData?.main.pressure} hPa`} 
+                  humidity={`${firstData?.main.humidity}%`} 
+                  sunrise={format(fromUnixTime(data?.city.sunrise ?? 0), "H:mm")} 
+                  sunset={format(fromUnixTime(data?.city.sunset ?? 0), "H:mm")} 
+                  windSpeed={convertWindSpeed(firstData?.wind.speed ?? 0)}
+                  />
                 </Container>
               </div>
            

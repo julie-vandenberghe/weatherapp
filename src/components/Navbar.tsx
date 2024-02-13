@@ -3,12 +3,14 @@ import React, { useState } from "react";
 import { MdMyLocation, MdOutlineLocationOn, MdWbSunny } from "react-icons/md";
 import SearchBox from "./SearchBox";
 import axios from "axios";
+import { useAtom } from "jotai";
+import { placeAtom } from "@/app/atom";
 
-type Props = {};
+type Props = { location?:string; };
 
 const API_KEY = process.env.NEXT_PUBLIC_WEATHER_KEY;
 
-export default function Navbar({}: Props) {
+export default function Navbar({ location }: Props) {
 
   const [city, setCity] = useState("");
   const [error, setError] = useState("");
@@ -16,14 +18,16 @@ export default function Navbar({}: Props) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
+  const [place, setPlace] = useAtom(placeAtom);
+
   async function handleInputChange(value:string){ 
     setCity(value);
     if(value.length >= 3) {
       try {
         const response = await axios.get(
-          `https://api.openweathermap.org/data/2.5/forecast?q=${value}&appid=${API_KEY}`);
+          `https://api.openweathermap.org/data/2.5/find?q=${value}&appid=${API_KEY}`);
 
-        const suggestions = response.data.list.map((item:any) => item.name);
+        const suggestions = response.data.list.map((item:any) => `${item.name}, ${item.sys.country}`);
         setSuggestions(suggestions);
         setError("");
         setShowSuggestions(true);
@@ -34,6 +38,8 @@ export default function Navbar({}: Props) {
       }
     }
     else {
+      setSuggestions([]);
+      setShowSuggestions(false);
     }
   }
 
@@ -48,6 +54,7 @@ export default function Navbar({}: Props) {
       setError("Location not found");
     } else {
       setError("");
+      setPlace(city);
       setShowSuggestions(false);
     }
   }
@@ -62,21 +69,20 @@ export default function Navbar({}: Props) {
         <section className="flex gap-2 items-center">
           <MdMyLocation className="text-2xl text-gray-400 hover:opacity-80 cursor-pointer" />
           <MdOutlineLocationOn className="text-3xl"/>
-          <p className="text-slate-900/80 text-sm">India</p>
+          <p className="text-slate-900/80 text-sm">{ location }</p>
           <div className="relative">
              <SearchBox
               value={city}
-              onSubmit={(e) => handleSubmitSearch}
+              onSubmit={handleSubmitSearch}
               onChange={(e) => handleInputChange(e.target.value)}
             /> 
-           
             <SuggestionBox
             {...{showSuggestions,
               suggestions,
               handleSuggestionClick,
               error}}
               />
-              {/*  Ci-dessus, même chose que : <SuggestionBox error={error}/> */}
+              {/*  Ci-dessus, même chose que : <SuggestionBox error={error} handleSuggestionClick={handleSuggestionClick} /> */}
           </div>
         </section>
       </div>
@@ -84,7 +90,7 @@ export default function Navbar({}: Props) {
   )
 }
 
-function SuggestionBox( {
+function SuggestionBox({
   showSuggestions,
   suggestions,
   handleSuggestionClick,
@@ -97,15 +103,17 @@ function SuggestionBox( {
 }) {
   return (
   <> 
-  { ((showSuggestions && suggestions.length>1) || error) && (
+  { ((showSuggestions && suggestions.length > 1) || error) && (
     <ul className="mb-4 bg-white absolute border-top-[44px] left-0 border-gray-300 rounded-md min-w-[200px] flex flex-col gap-1 py-2 px-2">
-      {error && suggestions.length<1 &&  (<li className="text-red-500 p-1">{error}</li>)}
+      {error && suggestions.length<1 &&  (
+        <li className="text-red-500 p-1">{error}</li>
+      )}
       {suggestions.map((item, index) => (
         <li
           key={index}
           onClick={() => handleSuggestionClick(item)}
           className="cursor-pointer p-1 rounded hover:bg-gray-200">
-            {item}
+            {item} {/* Here = location name / place name */}
         </li>
       ))}
     </ul>

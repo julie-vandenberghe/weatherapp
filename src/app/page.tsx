@@ -14,6 +14,9 @@ import WeatherDetails from "@/components/WeatherDetails";
 import { metersToKilometers } from "@/utils/metersToKilometers";
 import { convertWindSpeed } from "@/utils/convertWindSpeed";
 import ForecastWeatherDetail from "@/components/ForecastWeatherDetail";
+import { placeAtom } from "./atom";
+import { useAtom } from "jotai";
+import { useEffect } from "react";
 //https://api.openweathermap.org/data/2.5/forecast?q=&pune&appid=c2b84193fe521c38dada6f68da0ef9de&cnt=56
 
 interface WeatherData {
@@ -76,19 +79,26 @@ interface CityInfo {
 }
 
 export default function Home() {
-  const { isLoading, error, data } = useQuery<WeatherData>(
+  const [place, setPlace] = useAtom(placeAtom);
+
+  const { isLoading, error, data, refetch } = useQuery<WeatherData>(
     "repoData",
     async () => {
       const { data } = await axios.get(
-        `https://api.openweathermap.org/data/2.5/forecast?q=lille&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}&cnt=46`
+        `https://api.openweathermap.org/data/2.5/forecast?q=${place}&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}&cnt=46`
       );
       return data;
     }
+);
+    /* Permet de rafraichir données quand une nouvelle ville est entrée */
+    useEffect (() => {
+      refetch();
+    }, [place, refetch]);
 
     /* fetch(`https://api.openweathermap.org/data/2.5/forecast?id=524901&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}&cnt=56`
     ).then(res =>  res.json()) */
     // Because we're using axios, we don't need to use fetch and to convert it into json
-  );
+  
 
   console.log("data", data);
 
@@ -120,7 +130,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col gap-4 bg-gray-100 min-h-screen">
-      <Navbar />
+      <Navbar location={data?.city.name}/>
       <main className="px-3 max-w-7xl mx-auto flex flex-col gap-9 w-full pb-10 pt-4">
         {/* today data */}
         <section className="space-y-4">

@@ -13,6 +13,7 @@ import { getDayOrNightIcon } from "@/utils/getDayOrNightIcon";
 import WeatherDetails from "@/components/WeatherDetails";
 import { metersToKilometers } from "@/utils/metersToKilometers";
 import { convertWindSpeed } from "@/utils/convertWindSpeed";
+import ForecastWeatherDetail from "@/components/ForecastWeatherDetail";
 //https://api.openweathermap.org/data/2.5/forecast?q=&pune&appid=c2b84193fe521c38dada6f68da0ef9de&cnt=56
 
 interface WeatherData {
@@ -89,7 +90,24 @@ export default function Home() {
     // Because we're using axios, we don't need to use fetch and to convert it into json
   );
 
-  console.log("data", data?.city.name);
+  console.log("data", data);
+
+  const uniqueDates = [
+    ...new Set(
+      data?.list.map(
+        (entry) => new Date(entry.dt * 1000).toISOString().split("T")[0]
+      )
+    )
+  ];
+
+  // Filtering data to get the first entry after 6AM for each unique date
+  const firstDataForEachDate = uniqueDates.map((date) => {
+    return data?.list.find((entry) => {
+      const entryDate = new Date(entry.dt * 1000).toISOString().split("T")[0];
+      const entryTime = new Date(entry.dt * 1000).getHours();
+      return entryDate === date && entryTime >= 6;
+    });
+  });
 
   if (isLoading)
     return (
@@ -114,7 +132,7 @@ export default function Home() {
                 {format(parseISO(firstData?.dt_txt ?? ""), "dd.MM.yyyy")}
               </p>
             </h2>
-            <Container className="w-full bg-white border rounded-xl flex py-4 shadow-sm w-full bg-white border rounded-xl flex py-4 shadow-sm gap-10 px-6 items-center">
+            <Container className="w-full bg-white border rounded-xl flex py-4 shadow-sm bg-white border rounded-xl flex py-4 shadow-sm gap-10 px-6 items-center">
               {/* temperature */}
               <div className=" flex flex-col px-4">
                 <span className="text-5xl">
@@ -193,6 +211,25 @@ export default function Home() {
         {/* 7 day forecast data */}
         <section className="flex w-full flex-col gap-4">
           <p className="text-2-xl">Forecast (7 days)</p>
+          {firstDataForEachDate.map((d,i) => (
+          <ForecastWeatherDetail
+            key={i}
+            description={d?.weather[0].description ?? ""}
+            weatherIcon={d?.weather[0].icon ?? "01d"}
+            date={format(parseISO(d?.dt_txt ?? ""), "dd.MM")}
+            day={format(parseISO(d?.dt_txt ?? ""), "EEEE" )}
+            feels_like={d?.main.feels_like ?? 0} 
+            temp={d?.main.temp ?? 0} 
+            temp_max={d?.main.temp_max ?? 0} 
+            temp_min={d?.main.temp_min ?? 0} 
+            airPressure={`${d?.main.pressure} hPa`}
+            humidity={`${d?.main.humidity}%`} 
+            sunrise={format(fromUnixTime(data?.city.sunrise ?? 0),"H:mm")}
+            sunset={format(fromUnixTime(data?.city.sunset ?? 0), "H:mm")}
+            visibility={`${metersToKilometers(d?.visibility ?? 0)}`}
+            windSpeed={`${convertWindSpeed(d?.wind.speed ?? 0)}`}
+          />
+          ))}
         </section>
       </main>
     </div>

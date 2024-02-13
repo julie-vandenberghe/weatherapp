@@ -14,7 +14,7 @@ import WeatherDetails from "@/components/WeatherDetails";
 import { metersToKilometers } from "@/utils/metersToKilometers";
 import { convertWindSpeed } from "@/utils/convertWindSpeed";
 import ForecastWeatherDetail from "@/components/ForecastWeatherDetail";
-import { placeAtom } from "./atom";
+import { loadingCityAtom, placeAtom } from "./atom";
 import { useAtom } from "jotai";
 import { useEffect } from "react";
 //https://api.openweathermap.org/data/2.5/forecast?q=&pune&appid=c2b84193fe521c38dada6f68da0ef9de&cnt=56
@@ -80,6 +80,7 @@ interface CityInfo {
 
 export default function Home() {
   const [place, setPlace] = useAtom(placeAtom);
+  const [loadingCity, setLoadingCity] = useAtom(loadingCityAtom);
 
   const { isLoading, error, data, refetch } = useQuery<WeatherData>(
     "repoData",
@@ -132,6 +133,8 @@ export default function Home() {
     <div className="flex flex-col gap-4 bg-gray-100 min-h-screen">
       <Navbar location={data?.city.name}/>
       <main className="px-3 max-w-7xl mx-auto flex flex-col gap-9 w-full pb-10 pt-4">
+        {loadingCity ? <WeatherSkeleton/> :
+        <>
         {/* today data */}
         <section className="space-y-4">
           <div className="space-y-2">
@@ -241,7 +244,84 @@ export default function Home() {
           />
           ))}
         </section>
+      </>}
       </main>
     </div>
   );
 }
+
+
+
+function WeatherSkeleton() {
+  return (
+    <main className="px-3 max-w-7xl mx-auto flex flex-col gap-9 w-full pb-10 pt-4">
+      {/* today data */}
+      <section className="space-y-4">
+        <div className="space-y-2">
+          {/* DATE */}
+          <h2 className="flex gap-1 text-2xl items-end animate-pulse">
+            <p></p>
+            <p></p>
+          </h2>
+          <div className="w-full bg-white border rounded-xl flex py-4 shadow-sm gap-10 px-6 items-center animate-pulse">
+            {/* temperature */}
+            <div className="flex flex-col px-4">
+              <span className="text-5xl animate-pulse"></span>
+              <p className="text-xs space-x-1 whitespace-nowrap">
+                <span className="animate-pulse"></span>
+                <span className="animate-pulse"></span>
+              </p>
+              <p className="text-xs space-x-2">
+                <span className="animate-pulse"></span>
+                <span className="animate-pulse"></span>
+              </p>
+            </div>
+            {/* time, weather icons and temprature per day */}
+            <div className="flex gap-10 sm:gap-16 overflow-x-auto w-full justify-between pr-3">
+              {Array.from({ length: 5 }, (_, index) => (
+                <div
+                  key={index}
+                  className="flex flex-col justify-between gap-2 items-center text-xs font-semibold animate-pulse"
+                >
+                  {/* time */}
+                  <p className="whitespace-nowrap animate-pulse"></p>
+                  {/* weather icons */}
+                  <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse" />
+                  {/* temperature */}
+                  <p className="animate-pulse"></p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            {/* LEFT */}
+            <div className="w-full bg-white border rounded-xl flex py-4 shadow-sm w-fit justify-center flex-col px-4 animate-pulse">
+              <p className="capitalize text-center animate-pulse"></p>
+              <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse" />
+            </div>
+
+            {/* RIGHT */}
+            <div className="w-full border rounded-xl flex py-4 shadow-sm bg-yellow-300/80 px-6 gap-4 justify-between animate-pulse">
+              <div className="w-16 h-4 bg-gray-200 rounded animate-pulse" />
+              <div className="w-16 h-4 bg-gray-200 rounded animate-pulse" />
+              <div className="w-16 h-4 bg-gray-200 rounded animate-pulse" />
+              <div className="w-16 h-4 bg-gray-200 rounded animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7 day forecast data */}
+      <section className="flex w-full flex-col gap-4">
+        <p className="text-2-xl animate-pulse"></p>
+        {Array.from({ length: 5 }, (_, index) => (
+          <div key={index} className="animate-pulse">
+            {/* Insert skeleton for forecast here */}
+          </div>
+        ))}
+      </section>
+    </main>
+  );
+}
+

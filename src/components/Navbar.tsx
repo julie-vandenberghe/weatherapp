@@ -4,7 +4,7 @@ import { MdMyLocation, MdOutlineLocationOn, MdWbSunny } from "react-icons/md";
 import SearchBox from "./SearchBox";
 import axios from "axios";
 import { useAtom } from "jotai";
-import { placeAtom } from "@/app/atom";
+import { loadingCityAtom, placeAtom } from "@/app/atom";
 
 type Props = { location?:string; };
 
@@ -19,6 +19,7 @@ export default function Navbar({ location }: Props) {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const [place, setPlace] = useAtom(placeAtom);
+  const [loadingCity, setLoadingCity] = useAtom(loadingCityAtom);
 
   async function handleInputChange(value:string){ 
     setCity(value);
@@ -50,12 +51,18 @@ export default function Navbar({ location }: Props) {
 
   function handleSubmitSearch(e:React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setLoadingCity(true);
+
     if(suggestions.length==0) {
       setError("Location not found");
+      setLoadingCity(false);
     } else {
       setError("");
-      setPlace(city);
-      setShowSuggestions(false);
+      setTimeout(() => {
+        setLoadingCity(false);
+        setPlace(city);
+        setShowSuggestions(false);
+      }, 500);
     }
   }
 
